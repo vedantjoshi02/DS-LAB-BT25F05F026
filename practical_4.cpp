@@ -1,116 +1,154 @@
 #include <iostream>
 using namespace std;
 
-class CircularLinkedList {
-private:
-    struct Node {
-        int data;
-        Node* next;
-
-        Node(int value) : data(value), next(nullptr) {}
-    };
-
-    Node* tail = nullptr;
-
-public:
-    // Insert a node at the end
-    void insert(int value) {
-        Node* newNode = new Node(value);
-
-        if (tail == nullptr) {
-            tail = newNode;
-            tail->next = tail;  // Points to itself
-        } else {
-            newNode->next = tail->next;
-            tail->next = newNode;
-            tail = newNode;
-        }
-    }
-
-    // Delete the first node containing the given value
-    void remove(int value) {
-        if (tail == nullptr)
-            return;
-
-        Node* current = tail->next;
-        Node* previous = tail;
-
-        do {
-            if (current->data == value) {
-                // Only one node in the list
-                if (current == tail && current->next == tail) {
-                    delete current;
-                    tail = nullptr;
-                } else {
-                    previous->next = current->next;
-
-                    if (current == tail)
-                        tail = previous;
-
-                    delete current;
-                }
-                return;
-            }
-
-            previous = current;
-            current = current->next;
-
-        } while (current != tail->next);
-    }
-
-    // Display the list
-    void display() const {
-        if (tail == nullptr) {
-            cout << "List is empty." << endl;
-            return;
-        }
-
-        Node* current = tail->next; // Head node
-
-        do {
-            cout << current->data << " ";
-            current = current->next;
-        } while (current != tail->next);
-
-        cout << endl;
-    }
-
-    // Destructor
-    ~CircularLinkedList() {
-        if (tail == nullptr)
-            return;
-
-        Node* head = tail->next;
-        tail->next = nullptr; // Break the circle
-
-        while (head != nullptr) {
-            Node* temp = head;
-            head = head->next;
-            delete temp;
-        }
-    }
+// Node structure
+struct Node {
+    int data;
+    Node* next;
 };
 
+// Insert a node at the end
+void insertNode(Node*& head, int value) {
+    Node* newNode = new Node();
+    newNode->data = value;
+
+    // If the list is empty
+    if (head == nullptr) {
+        head = newNode;
+        newNode->next = head;
+        return;
+    }
+
+    // Find the last node
+    Node* temp = head;
+
+    while (temp->next != head) {
+        temp = temp->next;
+    }
+
+    temp->next = newNode;
+    newNode->next = head;
+}
+
+// Delete a node by value
+void deleteNode(Node*& head, int value) {
+    if (head == nullptr) {
+        cout << "List is empty.\n";
+        return;
+    }
+
+    Node* current = head;
+    Node* previous = nullptr;
+
+    // Case 1: Only one node
+    if (head->next == head) {
+        if (head->data == value) {
+            delete head;
+            head = nullptr;
+            cout << "Node deleted.\n";
+        } else {
+            cout << "Value not found.\n";
+        }
+        return;
+    }
+
+    // Case 2: Delete head node
+    if (head->data == value) {
+        Node* last = head;
+
+        while (last->next != head) {
+            last = last->next;
+        }
+
+        current = head;
+        head = head->next;
+        last->next = head;
+
+        delete current;
+        cout << "Node deleted.\n";
+        return;
+    }
+
+    // Case 3: Delete any other node
+    current = head;
+
+    do {
+        previous = current;
+        current = current->next;
+
+        if (current->data == value) {
+            previous->next = current->next;
+            delete current;
+            cout << "Node deleted.\n";
+            return;
+        }
+
+    } while (current != head);
+
+    cout << "Value not found.\n";
+}
+
+// Display the circular linked list
+void display(Node* head) {
+    if (head == nullptr) {
+        cout << "List is empty.\n";
+        return;
+    }
+
+    Node* temp = head;
+
+    cout << "Circular Linked List: ";
+
+    do {
+        cout << temp->data << " -> ";
+        temp = temp->next;
+    } while (temp != head);
+
+    cout << "HEAD\n";
+}
+
 int main() {
-    CircularLinkedList list;
+    Node* head = nullptr;
+    int choice, value;
 
-    list.insert(10);
-    list.insert(20);
-    list.insert(30);
-    list.insert(40);
+    while (true) {
+        cout << "\n--- Circular Linked List ---\n";
+        cout << "1. Insert\n";
+        cout << "2. Delete\n";
+        cout << "3. Display\n";
+        cout << "4. Exit\n";
 
-    cout << "Circular linked list: ";
-    list.display();
+        cout << "Enter your choice: ";
+        cin >> choice;
 
-    list.remove(20);
+        switch (choice) {
+            case 1:
+                cout << "Enter value to insert: ";
+                cin >> value;
 
-    cout << "After deleting 20: ";
-    list.display();
+                insertNode(head, value);
+                cout << "Node inserted successfully.\n";
+                break;
 
-    list.remove(40);
+            case 2:
+                cout << "Enter value to delete: ";
+                cin >> value;
 
-    cout << "After deleting 40: ";
-    list.display();
+                deleteNode(head, value);
+                break;
+
+            case 3:
+                display(head);
+                break;
+
+            case 4:
+                cout << "Program terminated.\n";
+                return 0;
+
+            default:
+                cout << "Invalid choice. Please try again.\n";
+        }
+    }
 
     return 0;
 }

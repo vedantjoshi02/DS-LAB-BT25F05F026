@@ -1,108 +1,125 @@
 #include <iostream>
 using namespace std;
 
-class SinglyLinkedList {
-private:
-    struct Node {
-        int data;
-        Node* next;
-
-        Node(int value) : data(value), next(nullptr) {}
-    };
-
-    Node* head = nullptr;
-
-public:
-    // Insert a node at the end
-    void insert(int value) {
-        Node* newNode = new Node(value);
-
-        if (head == nullptr) {
-            head = newNode;
-            return;
-        }
-
-        Node* current = head;
-
-        while (current->next != nullptr) {
-            current = current->next;
-        }
-
-        current->next = newNode;
-    }
-
-    // Delete the first node containing the given value
-    void remove(int value) {
-        if (head == nullptr)
-            return;
-
-        // If the head contains the value
-        if (head->data == value) {
-            Node* temp = head;
-            head = head->next;
-            delete temp;
-            return;
-        }
-
-        Node* current = head;
-
-        while (current->next != nullptr &&
-               current->next->data != value) {
-            current = current->next;
-        }
-
-        // Value found
-        if (current->next != nullptr) {
-            Node* temp = current->next;
-            current->next = temp->next;
-            delete temp;
-        }
-    }
-
-    // Display the list
-    void display() const {
-        Node* current = head;
-
-        while (current != nullptr) {
-            cout << current->data << " -> ";
-            current = current->next;
-        }
-
-        cout << "NULL" << endl;
-    }
-
-    // Destructor
-    ~SinglyLinkedList() {
-        while (head != nullptr) {
-            Node* temp = head;
-            head = head->next;
-            delete temp;
-        }
-    }
+// Node structure
+struct Node {
+    int data;
+    Node* next;
 };
 
+// Insert a node at the end
+void insertNode(Node*& head, int value) {
+    Node* newNode = new Node();
+    newNode->data = value;
+    newNode->next = nullptr;
+
+    // If list is empty
+    if (head == nullptr) {
+        head = newNode;
+        return;
+    }
+
+    // Traverse to the last node
+    Node* temp = head;
+    while (temp->next != nullptr) {
+        temp = temp->next;
+    }
+
+    temp->next = newNode;
+}
+
+// Delete a node by value
+void deleteNode(Node*& head, int value) {
+    if (head == nullptr) {
+        cout << "List is empty.\n";
+        return;
+    }
+
+    // If the first node contains the value
+    if (head->data == value) {
+        Node* temp = head;
+        head = head->next;
+        delete temp;
+        cout << "Node deleted.\n";
+        return;
+    }
+
+    Node* temp = head;
+
+    while (temp->next != nullptr && temp->next->data != value) {
+        temp = temp->next;
+    }
+
+    if (temp->next == nullptr) {
+        cout << "Value not found.\n";
+        return;
+    }
+
+    Node* nodeToDelete = temp->next;
+    temp->next = temp->next->next;
+    delete nodeToDelete;
+
+    cout << "Node deleted.\n";
+}
+
+// Display the linked list
+void display(Node* head) {
+    if (head == nullptr) {
+        cout << "List is empty.\n";
+        return;
+    }
+
+    Node* temp = head;
+
+    cout << "Linked List: ";
+
+    while (temp != nullptr) {
+        cout << temp->data << " -> ";
+        temp = temp->next;
+    }
+
+    cout << "NULL\n";
+}
+
 int main() {
-    SinglyLinkedList list;
+    Node* head = nullptr;
+    int choice, value;
 
-    // Insert elements
-    list.insert(10);
-    list.insert(20);
-    list.insert(30);
-    list.insert(40);
+    while (true) {
+        cout << "\n--- Singly Linked List ---\n";
+        cout << "1. Insert\n";
+        cout << "2. Delete\n";
+        cout << "3. Display\n";
+        cout << "4. Exit\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
 
-    cout << "Singly linked list: ";
-    list.display();
+        switch (choice) {
+            case 1:
+                cout << "Enter value to insert: ";
+                cin >> value;
+                insertNode(head, value);
+                cout << "Node inserted.\n";
+                break;
 
-    // Delete an element
-    list.remove(20);
+            case 2:
+                cout << "Enter value to delete: ";
+                cin >> value;
+                deleteNode(head, value);
+                break;
 
-    cout << "After deleting 20: ";
-    list.display();
+            case 3:
+                display(head);
+                break;
 
-    list.remove(40);
+            case 4:
+                cout << "Program terminated.\n";
+                return 0;
 
-    cout << "After deleting 40: ";
-    list.display();
+            default:
+                cout << "Invalid choice. Try again.\n";
+        }
+    }
 
     return 0;
 }
